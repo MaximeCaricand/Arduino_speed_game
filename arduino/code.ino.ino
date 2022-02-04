@@ -21,6 +21,10 @@ int timer = -1;
 int gameLedList[3] = { LED_A_PIN, LED_B_PIN, LED_C_PIN};
 int avgLedList[3] = { LED_AVG_R_PIN, LED_AVG_Y_PIN, LED_AVG_G_PIN};
 
+unsigned long timeStart = 0;
+unsigned long timeEnd = 0;
+unsigned long timeReactivity = 0;
+
 void setup() {
   // switch setup
   attachInterrupt(digitalPinToInterrupt( SWITCH_GAME_PIN ), startGame, FALLING );
@@ -48,13 +52,29 @@ void setup() {
 
 void loop() {
   delay(5);
+  
+  if(Serial.available() > 0) // Read from serial port
+  {
+    char ReaderFromNode; // Store current character
+    ReaderFromNode = (char) Serial.read();
+    
+    Serial.print(ReaderFromNode);
+  }
+  
   if (gameStarted) {
     if (currentLed == -1) {
       currentLed = random(3);
-      timer = random(100, 500); // from 2s to 10s
-      // démarer le chrono
-    } else if (timer == 0) {
+      timer = random(100, 500); // from 0,5s to 2,5s
+      
+    } else if (timer == 0 && timeStart == 0) {
+      // allume la led & démarre le chrono
       digitalWrite( gameLedList[currentLed], HIGH );
+      timeStart = micros();
+      
+    } else if (timer == 0) {
+      // allume uniquement la led
+      digitalWrite( gameLedList[currentLed], HIGH );
+      
     } else {
       timer--;
     }
@@ -88,9 +108,19 @@ void handleclick() {
     clickedButton = 2;
   }
   if (timer == 0 && currentLed == clickedButton) {
-    //close chrono and send via serial port
+    //close chrono
+    timeEnd = micros();
     digitalWrite( gameLedList[currentLed], LOW );
     currentLed = -1;
+
+    //send reactivity time via serial port
+    timeReactivity = timeEnd - timeStart;
+    int val = timeReactivity/1000;
+    Serial.println("TIME (ms) :");
+    Serial.println(val);
+
+    timeStart = 0;
+    timeEnd = 0;
+    timeReactivity = 0;
   }
 }
-
