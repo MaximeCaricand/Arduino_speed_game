@@ -1,8 +1,15 @@
 import type { NextPage } from 'next';
 import Game from '../components/Game';
-import Head from 'next/head'
+import Head from 'next/head';
+import { useEffect } from 'react';
 
 const Home: NextPage = () => {
+  useEffect(() => {
+    const ws = new WebSocket(`ws://${window.location.host}`);
+    ws.onopen = function (this: WebSocket, e: Event) {
+      console.log('ouiiii');
+    };
+  });
   return (
     <>
       <Head>
