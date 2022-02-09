@@ -1,0 +1,22 @@
+{
+  "name": "speed_game_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "watch": "npx tsc --watch",
+    "start": "node ./dist/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^17.0.16",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@types/ws": "^8.2.2",
+    "ws": "^8.5.0"
+  }
+}
