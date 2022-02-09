@@ -10,15 +10,16 @@
 #define SWITCH_GAME_PIN 2
 #define SWITCH_LED_PIN 3
 
-#define SWITCH_LED_A_PIN A0
+#define SWITCH_LED_A_PIN A2
 #define SWITCH_LED_B_PIN A1
-#define SWITCH_LED_C_PIN A2
+#define SWITCH_LED_C_PIN A0
 
 bool gameStarted = false;
 int currentLed = -1;
+int currentAvg = -1;
 int timer = -1;
 
-int gameLedList[3] = {LED_A_PIN, LED_B_PIN, LED_C_PIN};
+int gameLedList[3] = {LED_C_PIN, LED_B_PIN, LED_A_PIN};
 int avgLedList[3] = {LED_AVG_R_PIN, LED_AVG_Y_PIN, LED_AVG_G_PIN};
 
 unsigned long timeStart = 0;
@@ -60,7 +61,25 @@ void loop()
     char ReaderFromNode; // Store current character
     ReaderFromNode = (char)Serial.read();
 
-    Serial.print(ReaderFromNode);
+    switch (ReaderFromNode){
+      case 'r' :
+        digitalWrite(avgLedList[currentAvg], LOW);
+        currentAvg = 0;
+        digitalWrite(avgLedList[currentAvg], HIGH);
+        break;
+      case 'y' :
+        digitalWrite(avgLedList[currentAvg], LOW);
+        currentAvg = 1;
+        digitalWrite(avgLedList[currentAvg], HIGH);
+        break;
+      case 'g' :
+        digitalWrite(avgLedList[currentAvg], LOW);
+        currentAvg = 2;
+        digitalWrite(avgLedList[currentAvg], HIGH);
+        break;
+      case 's' :
+        startGame(); break;
+    }
   }
 
   if (gameStarted)
@@ -91,7 +110,6 @@ void loop()
 void startGame()
 {
   gameStarted = !gameStarted;
-  Serial.println("Game running");
   if (gameStarted)
   {
     digitalWrite(LED_GAME_PIN, HIGH);
@@ -104,6 +122,11 @@ void startGame()
     {
       digitalWrite(gameLedList[currentLed], LOW);
     }
+    if (currentAvg != -1)
+    {
+      digitalWrite(avgLedList[currentAvg], LOW);
+    }
+    currentAvg = -1;
     currentLed = -1;
     timer = -1;
     Serial.println("Game stopped");
