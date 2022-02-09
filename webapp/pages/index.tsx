@@ -1,15 +1,33 @@
 import type { NextPage } from 'next';
 import Game from '../components/Game';
 import Head from 'next/head';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+type Distribution = {
+  red: number;
+  yellow: number;
+  green: number;
+}
 
 const Home: NextPage = () => {
+
+  const [curTime, setCurTime] = useState(0);
+  const [avgTime, setAvgTime] = useState(0);
+  // const [distribution, setDistribution] = useState<Distribution>();
+
   useEffect(() => {
+    console.log('try new connection')
     const ws = new WebSocket(`ws://${window.location.host}`);
-    ws.onopen = function (this: WebSocket, e: Event) {
-      console.log('ouiiii');
+    ws.onopen = () => console.log('connected');
+    ws.onmessage = (event) => {
+      console.log('ok')
+      const data = JSON.parse(event.data);
+      setCurTime(data.curTime);
+      setAvgTime(data.avgTime);
+      console.log(curTime);
+      console.log(avgTime)
     };
-  });
+  }, []);
   return (
     <>
       <Head>
@@ -22,7 +40,7 @@ const Home: NextPage = () => {
       </header>
       <main>
         <div className="container h-100">
-          <Game />
+          <Game curTime={curTime} avgTime={avgTime} />
         </div>
       </main>
       <footer className="fixed-bottom py-3 bg-dark text-white-50">

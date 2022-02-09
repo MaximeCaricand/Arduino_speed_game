@@ -9,71 +9,75 @@ if (typeof Highcharts === 'object') {
     solidGauge(Highcharts);
 }
 
-export default function Game() {
+const gaugeAvgOffset = 300;
 
-    const [chartOptions, setChartOptions] = useState({
-        chart: {
-            type: 'gauge',
-            plotBorderWidth: 0,
-            plotShadow: false,
-        },
-        title: { text: '' },
-        pane: { startAngle: -150, endAngle: 150 },
-        yAxis: {
-            min: 0,
-            max: 2000,
-            minorTickInterval: 'auto',
-            minorTickWidth: 1,
-            minorTickLength: 10,
-            minorTickPosition: 'inside',
-            minorTickColor: '#666',
-            tickPixelInterval: 30,
-            tickWidth: 2,
-            tickPosition: 'inside',
-            tickLength: 10,
-            tickColor: '#666',
-            labels: {
-                step: 2,
-                rotation: 'auto'
+export default function Game(props: { curTime: number, avgTime: number }) {
+
+    function getChartOptions(curTime: number, avgTime: number) {
+        return {
+            chart: {
+                type: 'gauge',
+                plotBorderWidth: 0,
+                plotShadow: false,
             },
-            title: { text: 'Milliseconds' },
-            plotBands: [{
-                from: 0,
-                to: 120,
-                color: '#55BF3B' // green
-            }, {
-                from: 120,
-                to: 160,
-                color: '#DDDF0D' // yellow
-            }, {
-                from: 160,
-                to: 3000,
-                color: '#DF5353' // red
+            title: { text: '' },
+            pane: { startAngle: -150, endAngle: 150 },
+            yAxis: {
+                min: 0,
+                max: 2000,
+                minorTickInterval: 'auto',
+                minorTickWidth: 1,
+                minorTickLength: 10,
+                minorTickPosition: 'inside',
+                minorTickColor: '#666',
+                tickPixelInterval: 30,
+                tickWidth: 2,
+                tickPosition: 'inside',
+                tickLength: 10,
+                tickColor: '#666',
+                labels: {
+                    step: 2,
+                    rotation: 'auto'
+                },
+                title: { text: 'Milliseconds' },
+                plotBands: [{
+                    from: 0,
+                    to: avgTime - gaugeAvgOffset,
+                    color: '#55BF3B' // green
+                }, {
+                    from: avgTime - gaugeAvgOffset,
+                    to: avgTime + gaugeAvgOffset,
+                    color: '#DDDF0D' // yellow
+                }, {
+                    from: avgTime + gaugeAvgOffset,
+                    to: 3000,
+                    color: '#DF5353' // red
+                }]
+            },
+            series: [{
+                name: 'Speed',
+                data: [curTime],
+                tooltip: {
+                    valueSuffix: 'Milliseconds'
+                }
             }]
-        },
-        series: [{
-            name: 'Speed',
-            data: [80],
-            tooltip: {
-                valueSuffix: 'Milliseconds'
-            }
-        }]
-    });
+        }
+    }
 
-    // updateSeries = () => {
-    //     this.setState({
-    //         chartOptions: {
-    //             series: [
-    //                 { data: [Math.random() * 5, 2, 1] }
-    //             ]
-    //         }
-    //     });
-    // }
+    const [chartOptions, setChartOptions] = useState(getChartOptions(props.curTime, props.avgTime));
+
+    useEffect(() => {
+        setChartOptions(getChartOptions(props.curTime, props.avgTime));
+        // console.log(chartOptions);
+    }, [props.curTime, props.avgTime])
+
+
 
     return (
         <>
             <HighchartsReact
                 highcharts={Highcharts}
+                allowChartUpdate={true}
                 options={chartOptions}
             />
         </>
