@@ -1,55 +1,84 @@
-import type { NextPage } from 'next';
 import Game from '../components/Game';
+import Graph from '../components/Graph';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { Component } from 'react';
+import { ILedMessageData, IScoreData, MessageHeader } from '../utils/model/MessageData.model';
+import Highcharts from 'highcharts';
+import highchartsMore from "highcharts/highcharts-more.js"
+import solidGauge from "highcharts/modules/solid-gauge";
 
-type Distribution = {
-  red: number;
-  yellow: number;
-  green: number;
+if (typeof Highcharts === 'object') {
+  highchartsMore(Highcharts);
+  solidGauge(Highcharts);
 }
 
-const Home: NextPage = () => {
+export default class Home extends Component<{}, any> {
 
-  const [curTime, setCurTime] = useState(0);
-  const [avgTime, setAvgTime] = useState(0);
-  // const [distribution, setDistribution] = useState<Distribution>();
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      curLed: 0,
+      curTime: 0,
+      avgTime: 0,
+      distribution: {
+        red: 0,
+        yellow: 0,
+        green: 0
+      }
+    }
+  }
 
-  useEffect(() => {
-    console.log('try new connection')
-    const ws = new WebSocket(`ws://${window.location.host}`);
-    ws.onopen = () => console.log('connected');
+  updateState(newState: any) {
+    this.setState((state: any) => (Object.assign({}, state, newState)));
+  }
+
+  componentDidMount() {
+    const ws = new WebSocket(`ws://localhost:3100`);
+    ws.onopen = () => console.log("ws opened");
+    ws.onerror = (e) => console.log(e);
     ws.onmessage = (event) => {
-      console.log('ok')
-      const data = JSON.parse(event.data);
-      setCurTime(data.curTime);
-      setAvgTime(data.avgTime);
-      console.log(curTime);
-      console.log(avgTime)
+      const data: IScoreData | ILedMessageData = JSON.parse(event.data);
+      switch (data.type) {
+        case MessageHeader.LED:
+          this.setState({ curLed: data.curLed });
+          break;
+        case MessageHeader.SCORE:
+          this.setState({
+            curLed: -1,
+            curTime: data.curTime,
+            avgTime: data.avgTime,
+            distribution: data.distribution
+          });
+          break;
+      }
     };
-  }, []);
-  return (
-    <>
-      <Head>
-        <title>Awesome speed game</title>
-      </Head>
-      <header>
-        <nav className="navbar text-center d-block navbar-dark bg-dark mx-auto">
-          <h1 className="h2 text-light my-1">Awesome speed game</h1>
-        </nav>
-      </header>
-      <main>
-        <div className="container h-100">
-          <Game curTime={curTime} avgTime={avgTime} />
-        </div>
-      </main>
-      <footer className="fixed-bottom py-3 bg-dark text-white-50">
-        <div className="container text-center">
-          <h6 className="w-100 text-center">© Copyright 2022 - Henry Florian & Maxime Caricand - Projet Arduino IoT</h6>
-        </div>
-      </footer>
-    </>
-  )
-}
+  }
 
-export default Home
+  render() {
+    return (
+      <>
+        <Head>
+          <title>Awesome speed game</title>
+        </Head>
+        <header>
+          <nav className="navbar text-center d-block navbar-dark bg-dark mx-auto">
+            <h1 className="h2 text-light my-1">Awesome speed game</h1>
+          </nav>
+        </header>
+        <main>
+          <div className="container h-100 mt-5 mb-5">
+            <div className='row'>
+              <Game Highcharts={Highcharts} curLed={this.state.curLed} curTime={this.state.curTime} avgTime={this.state.avgTime} />
+              <Graph Highcharts={Highcharts} distribution={this.state.distribution} />
+            </div>
+          </div>
+        </main>
+        <footer className="fixed-bottom py-3 bg-dark text-white-50">
+          <div className="container text-center">
+            <h6 className="w-100 text-center">© Copyright 2022 - Henry Florian & Maxime Caricand - Projet Arduino IoT</h6>
+          </div>
+        </footer>
+      </>
+    )
+  }
+}

@@ -1,9 +1,8 @@
 import * as http from 'http';
 import { WebSocketServer } from 'ws';
-import * as SerialPort from 'serialport';
-import { resolve } from 'path/posix';
+import { ILedMessageData, IScoreData, MessageHeader } from './utils/model/MessageData.model';
 
-const wsPort = 3000;
+const wsPort = 3100;
 const wsAdress = 'localhost';
 const arduinoPort = 3000;
 const arduinoCOMPort = '/dev/ttyACM0';
@@ -22,11 +21,20 @@ server.listen(wsPort, wsAdress, () => {
 });
 const wss = new WebSocketServer({ server });
 
-const broadcastJSON = (message: MessageData) => {
-    console.log(message)
+const broadcastJSON = (message: IScoreData | ILedMessageData) => {
     wss.clients.forEach(client => {
         client.send(JSON.stringify(message));
     });
+}
+
+function getDistribution(newValue: number, avg: number) {
+    if (newValue < avg - 100) {
+        return 'green';
+    } else if (newValue > avg + 100) {
+        return 'red';
+    } else {
+        return 'yellow';
+    }
 }
 
 wss.on('connection', function (client, request) {
@@ -36,40 +44,48 @@ const debug = async () => {
     let accScore = 0;
     let nbScore = 0;
 
-    const action = async function () {
+    const distrib = {
+        red: 0,
+        yellow: 0,
+        green: 0
+    }
+
+    const ledAction = async function () {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                broadcastJSON({
+                    type: MessageHeader.LED,
+                    curLed: Math.floor(Math.random() * 3),
+                    date: 0
+                });
+                resolve(true);
+            }, 2000);
+        });
+    }
+    const scoreAction = async function () {
         return new Promise((resolve) => {
             setTimeout(() => {
                 const newCurTime = 300 + Math.round(Math.random() * 500);
                 accScore += newCurTime;
                 nbScore++;
+                const avgTime = Math.round(accScore / nbScore);
+                const newDistribKey = getDistribution(newCurTime, avgTime);
+                distrib[newDistribKey]++;
                 broadcastJSON({
+                    type: MessageHeader.SCORE,
                     curTime: newCurTime,
-                    avgTime: Math.round(accScore / nbScore),
-                    distribution: {
-                        red: 0,
-                        yellow: 0,
-                        green: 0
-                    }
+                    avgTime,
+                    distribution: distrib,
+                    date: 0,
                 });
                 resolve(true);
-            }, 3000 + Math.round(Math.random() * 300));
+            }, 500 + Math.round(Math.random() * 100));
         });
     }
     while (true) {
-        await action();
+        await ledAction();
+        await scoreAction();
     }
 };
 
 debug();
-
-type MessageData = {
-    curTime: number;
-    avgTime: number;
-    distribution: Distribution;
-}
-
-type Distribution = {
-    red: number;
-    yellow: number;
-    green: number;
-}
