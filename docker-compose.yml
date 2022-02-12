@@ -1,10 +1,26 @@
-version: "3.8"
+version: '3.1'
+
 services:
-  mongodb:
-    image : mongo
-    container_name: mongodb
-    volumes:
-      - /home/mongodb/database:/data/db
-    ports:
-      - 27017:27017
+  server:
     restart: unless-stopped
+    build: ./server
+    ports:
+      - 3100:3100
+    tty: true
+    stdin_open: true
+
+  client:
+    restart: unless-stopped
+    build: ./webapp
+    ports:
+      - 3000:3000
+    tty: true
+    stdin_open: true
+
+  # mongo:
+  #   restart: unless-stopped
+  #   image: mongo:3.6.4
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   ports:
+  #     - 27017:27017

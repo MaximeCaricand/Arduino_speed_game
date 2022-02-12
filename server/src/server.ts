@@ -15,7 +15,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
 
 // WebSocket connection setup
 const server = http.createServer();
-server.listen(wsPort, wsAdress, () => {
+server.listen(wsPort, () => {
     // @ts-ignore
     console.log('Listening on ' + server.address().address + ':' + server.address().port);
 });
