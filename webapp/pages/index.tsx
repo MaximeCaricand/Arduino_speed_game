@@ -75,7 +75,7 @@ export default class Home extends Component<{}, any> {
         </main>
         <footer className="fixed-bottom py-3 bg-dark text-white-50">
           <div className="container text-center">
-            <h6 className="w-100 text-center">© Copyright 2022 - Henry Florian & Maxime Caricand - Projet Arduino IoT</h6>
+            <h6 className="w-100 text-center">© Copyright 2022 - Florian Henry & Maxime Caricand - Projet Arduino IoT</h6>
           </div>
         </footer>
       </>

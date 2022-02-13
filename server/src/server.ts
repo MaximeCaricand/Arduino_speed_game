@@ -1,91 +1,110 @@
 import * as http from 'http';
 import { WebSocketServer } from 'ws';
-import { ILedMessageData, IScoreData, MessageHeader } from './utils/model/MessageData.model';
+import { ILedMessageData, IScoreData, medianAvgOffset, MessageHeader } from './database/models/MessageData.model';
+import { connectDB, GameResultService } from './database/index';
+import { DistributionKey, GameResult } from './database/models/GameResul.model';
 
 const wsPort = 3100;
-const wsAdress = 'localhost';
-const arduinoPort = 3000;
+const dbPort = 27017;
+const arduinoPort = 3200;
 const arduinoCOMPort = '/dev/ttyACM0';
 
-// Arduino connection setup
-// const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
-// arduinoSerialPort.on('open', function () {
-//     console.log(`Serial Port ${arduinoCOMPort} is opened.`);
-// });
+(async () => {
+    // Mongo setup
+    console.log(await connectDB(dbPort));
 
-// WebSocket connection setup
-const server = http.createServer();
-server.listen(wsPort, () => {
+    // Arduino connection setup
+    // const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
+    // arduinoSerialPort.on('open', function () {
+    //     console.log(`Serial Port ${arduinoCOMPort} is opened.`);
+    // });
+
+    const server = http.createServer();
     // @ts-ignore
-    console.log('Listening on ' + server.address().address + ':' + server.address().port);
-});
-const wss = new WebSocketServer({ server });
+    server.listen(wsPort, () => console.log('[WS] Listening on ' + server.address().address + ':' + server.address().port));
+    const wss = new WebSocketServer({ server });
+    wss.on('connection', () => console.log('new client'));
 
-const broadcastJSON = (message: IScoreData | ILedMessageData) => {
-    wss.clients.forEach(client => {
-        client.send(JSON.stringify(message));
-    });
-}
-
-function getDistribution(newValue: number, avg: number) {
-    if (newValue < avg - 100) {
-        return 'green';
-    } else if (newValue > avg + 100) {
-        return 'red';
-    } else {
-        return 'yellow';
-    }
-}
-
-wss.on('connection', function (client, request) {
-    console.log('new client');
-});
-const debug = async () => {
-    let accScore = 0;
-    let nbScore = 0;
-
-    const distrib = {
-        red: 0,
-        yellow: 0,
-        green: 0
-    }
-
-    const ledAction = async function () {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                broadcastJSON({
-                    type: MessageHeader.LED,
-                    curLed: Math.floor(Math.random() * 3),
-                    date: 0
-                });
-                resolve(true);
-            }, 2000);
+    function broadcastJSON(message: IScoreData | ILedMessageData) {
+        wss.clients.forEach(client => {
+            client.send(JSON.stringify(message));
         });
     }
-    const scoreAction = async function () {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const newCurTime = 300 + Math.round(Math.random() * 500);
-                accScore += newCurTime;
-                nbScore++;
-                const avgTime = Math.round(accScore / nbScore);
-                const newDistribKey = getDistribution(newCurTime, avgTime);
-                distrib[newDistribKey]++;
-                broadcastJSON({
-                    type: MessageHeader.SCORE,
-                    curTime: newCurTime,
-                    avgTime,
-                    distribution: distrib,
-                    date: 0,
-                });
-                resolve(true);
-            }, 500 + Math.round(Math.random() * 100));
+
+    function getDistributionKey(newValue: number, avg: number) {
+        if (newValue < avg - medianAvgOffset) {
+            return DistributionKey.GREEN;
+        } else if (newValue > avg + medianAvgOffset) {
+            return DistributionKey.RED;
+        } else {
+            return DistributionKey.YELLOW;
+        }
+    }
+
+    function handleNewMessage(message: string) {
+        const messageData = message.split(';');
+        switch (messageData[0]) {
+            case MessageHeader.LED:
+                return handleNewLed(+messageData[1], +messageData[2]);
+            case MessageHeader.SCORE:
+                return handleNewScore(+messageData[1], +messageData[2]);
+        }
+    }
+
+    function handleNewLed(ledIndex: number, date: number) {
+        broadcastJSON({ type: MessageHeader.LED, curLed: ledIndex, date });
+    }
+
+    async function handleNewScore(score: number, date: number) {
+
+        const queryResult = (await GameResultService.getScoreAvgAndDistribution());
+        const averageScore = queryResult.avg ?? score;
+        const category = getDistributionKey(score, averageScore);
+        const distribution = {
+            green: queryResult.green,
+            yellow: queryResult.yellow,
+            red: queryResult.red
+        }
+        distribution[category]++; // increase distribution with the new score
+        await GameResultService.createGameResult(new GameResult({ score, category, datetime: date }));
+        broadcastJSON({
+            type: MessageHeader.SCORE,
+            curTime: score,
+            avgTime: averageScore,
+            distribution,
+            date
         });
     }
-    while (true) {
-        await ledAction();
-        await scoreAction();
-    }
-};
 
-debug();
+    async function debug() {
+        const ledAction = async function () {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    handleNewMessage(`${MessageHeader.LED};${Math.floor(Math.random() * 3)};${Date.now()}`);
+                    resolve(true);
+                }, 2000);
+            });
+        }
+        const scoreAction = async function () {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    handleNewMessage(`${MessageHeader.SCORE};${300 + Math.round(Math.random() * 500)};${Date.now()}`);
+                    resolve(true);
+                }, 300 + Math.round(Math.random() * 100));
+            });
+        }
+        while (true) {
+            await ledAction();
+            await scoreAction();
+        }
+    };
+
+    debug();
+})();
+
+
+
+
+
+
+

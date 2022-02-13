@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@types/ws": "^8.2.2",
+    "mongoose": "^6.2.1",
     "serialport": "^9.2.8",
     "ws": "^8.5.0"
   }

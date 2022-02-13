@@ -4,23 +4,32 @@ services:
   server:
     restart: unless-stopped
     build: ./server
+    depends_on:
+      - mongo
     ports:
       - 3100:3100
     tty: true
     stdin_open: true
+    networks:
+      - backend
 
   client:
     restart: unless-stopped
     build: ./webapp
+    depends_on:
+      - server
     ports:
       - 3000:3000
+
+  mongo:
+    restart: unless-stopped
+    image: mongo:latest
+    ports:
+      - 27017:27017
     tty: true
     stdin_open: true
+    networks:
+      - backend
 
-  # mongo:
-  #   restart: unless-stopped
-  #   image: mongo:3.6.4
-  #   volumes:
-  #     - mongo_data:/data/db
-  #   ports:
-  #     - 27017:27017
+networks:
+  backend:

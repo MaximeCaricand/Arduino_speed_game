@@ -1,13 +1,13 @@
-export type Distribution = {
-    red: number;
-    yellow: number;
-    green: number;
-}
+import { DistributionKey } from "./GameResul.model";
+
+export const medianAvgOffset = 100;
 
 export enum MessageHeader {
     LED = 'led',
     SCORE = 'score'
 }
+
+export type Distribution = { [key in DistributionKey]: number }
 
 export interface IMessageData {
     type: MessageHeader;
@@ -25,3 +25,4 @@ export interface IScoreData extends IMessageData {
     avgTime: number;
     distribution: Distribution;
 }
+
