@@ -88,17 +88,7 @@ var parser;
     }
 
     function sendCategoryToArduino(category: DistributionKey) {
-        switch (category) {
-            case DistributionKey.RED:
-                arduinoSerialPort.write("r", 'ascii');
-                break;
-            case DistributionKey.YELLOW:
-                arduinoSerialPort.write("y", 'ascii');
-                break;
-            case DistributionKey.GREEN:
-                arduinoSerialPort.write("g", 'ascii');
-                break;
-        }
+        arduinoSerialPort.write(category.charAt(0), 'ascii');
     }
 
     async function debug() {
