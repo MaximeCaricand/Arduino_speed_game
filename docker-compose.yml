@@ -8,11 +8,13 @@ services:
       - mongo
     ports:
       - 3100:3100
-      - 3200:3200
     tty: true
     stdin_open: true
     networks:
       - backend
+    devices:
+      - "/dev/cu.usbmodem1101:/dev/cu.usbmodem1101"
+    privileged: true
 
   client:
     restart: unless-stopped
