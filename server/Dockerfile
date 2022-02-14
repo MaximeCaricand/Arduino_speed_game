@@ -1,9 +1,9 @@
-FROM node as builder
+FROM node:14 as builder
 COPY ./ server
 WORKDIR /server
-RUN npm install && npm run build
+RUN npm install && npm run build 
 
-FROM node:12-alpine
+FROM node:14-alpine
 COPY --from=builder /server /server
 WORKDIR /server
 RUN rm -rf ./src
