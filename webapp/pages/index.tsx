@@ -45,8 +45,8 @@ export default class Home extends Component<{}, any> {
         case MessageHeader.SCORE:
           this.setState({
             curLed: -1,
-            curTime: data.curTime,
-            avgTime: data.avgTime,
+            curTime: data.score,
+            avgTime: data.avgScore,
             distribution: data.distribution
           });
           break;

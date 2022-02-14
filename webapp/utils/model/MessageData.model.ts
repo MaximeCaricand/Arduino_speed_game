@@ -1,17 +1,20 @@
-export type Distribution = {
-    red: number;
-    yellow: number;
-    green: number;
+export enum DistributionKey {
+    RED = 'red',
+    YELLOW = 'yellow',
+    GREEN = 'green'
 }
+
+export const medianAvgOffset = 100;
 
 export enum MessageHeader {
     LED = 'led',
     SCORE = 'score'
 }
 
+export type Distribution = { [key in DistributionKey]: number }
+
 export interface IMessageData {
     type: MessageHeader;
-    date: number;
 }
 
 export interface ILedMessageData extends IMessageData {
@@ -21,7 +24,8 @@ export interface ILedMessageData extends IMessageData {
 
 export interface IScoreData extends IMessageData {
     type: MessageHeader.SCORE;
-    curTime: number;
-    avgTime: number;
+    score: number;
+    avgScore: number;
     distribution: Distribution;
 }
+
