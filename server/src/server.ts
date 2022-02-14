@@ -7,10 +7,12 @@ import SerialPort = require("serialport");
 
 const Readline = require('@serialport/parser-readline');
 
-const wsPort = 3100;
+const wsPort = 3150;
 const arduinoPort = 3200;
 const dbPort = 27017;
-const arduinoCOMPort = '/dev/ttyACM0';
+const arduinoCOMPortUbuntu = '/dev/ttyACM0';
+const arduinoCOMPortMacos = '/dev/cu.usbmodem1101';
+const selectedArdCOMPort = arduinoCOMPortMacos;
 var parser;
 
 (async () => {
@@ -18,13 +20,13 @@ var parser;
     console.log(await connectDB(dbPort));
 
     // Arduino connection setup
-    const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
+    const arduinoSerialPort = new SerialPort(selectedArdCOMPort, { baudRate: 9600 });
     arduinoSerialPort.on('open', function () {
-        console.log(`[Serial Port] ${arduinoCOMPort} is opened.`);
+        console.log(`[Serial Port] ${selectedArdCOMPort} is opened.`);
     });
-    
+
     parser = arduinoSerialPort.pipe(new Readline({ delimiter: '\r\n' }));
-    parser.on('data', (message:string) => {handleNewMessage(message, Date.now());});
+    parser.on('data', (message: string) => { handleNewMessage(message, Date.now()); });
 
     const server = http.createServer();
     // @ts-ignore
