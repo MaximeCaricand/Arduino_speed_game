@@ -11,7 +11,7 @@ const wsPort = 3100;
 const dbPort = 27017;
 const arduinoCOMPortUbuntu = '/dev/ttyACM0';
 const arduinoCOMPortMacos = '/dev/cu.usbmodem1101';
-const selectedArdCOMPort = arduinoCOMPortMacos;
+const selectedArdCOMPort = arduinoCOMPortUbuntu;
 var parser;
 
 (async () => {

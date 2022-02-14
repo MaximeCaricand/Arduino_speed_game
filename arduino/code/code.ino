@@ -121,6 +121,7 @@ void startGame() {
     currentAvg = -1;
     currentLed = -1;
     timer = -1;
+    timeStart = 0;
   }
 }
 
