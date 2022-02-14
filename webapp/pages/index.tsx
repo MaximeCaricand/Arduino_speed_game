@@ -17,7 +17,7 @@ export default class Home extends Component<{}, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      curLed: 0,
+      curLed: -1,
       curTime: 0,
       avgTime: 0,
       distribution: {

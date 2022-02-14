@@ -3,25 +3,28 @@ import { WebSocketServer } from 'ws';
 import { ILedMessageData, IScoreData, medianAvgOffset, MessageHeader } from './database/models/MessageData.model';
 import { connectDB, GameResultService } from './database/index';
 import { DistributionKey, GameResult } from './database/models/GameResul.model';
-//import SerialPort = require("serialport");
+import SerialPort = require("serialport");
+
+const Readline = require('@serialport/parser-readline');
 
 const wsPort = 3100;
 const arduinoPort = 3200;
 const dbPort = 27017;
 const arduinoCOMPort = '/dev/ttyACM0';
+var parser;
 
 (async () => {
     // Mongo setup
     console.log(await connectDB(dbPort));
 
     // Arduino connection setup
-    /*const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
+    const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
     arduinoSerialPort.on('open', function () {
-        console.log(`Serial Port ${arduinoCOMPort} is opened.`);
+        console.log(`[Serial Port] ${arduinoCOMPort} is opened.`);
     });
-    arduinoSerialPort.on('message', function () {
-        console.log('message recu');
-    });*/
+    
+    parser = arduinoSerialPort.pipe(new Readline({ delimiter: '\r\n' }));
+    parser.on('data', (message:string) => {handleNewMessage(message, Date.now());});
 
     const server = http.createServer();
     // @ts-ignore
@@ -71,6 +74,9 @@ const arduinoCOMPort = '/dev/ttyACM0';
         }
         distribution[category]++; // increase distribution with the new score
         await GameResultService.createGameResult(new GameResult({ score, category, datetime: date }));
+
+        //sendCategory
+
         broadcastJSON({
             type: MessageHeader.SCORE,
             score,
@@ -79,7 +85,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         });
     }
 
-/*    async function debug() {
+    async function debug() {
         const ledAction = async function () {
             return new Promise((resolve) => {
                 setTimeout(() => {
@@ -102,7 +108,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         }
     };
 
-    debug();*/
+    //debug();
 })();
 
 
