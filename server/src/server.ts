@@ -5,8 +5,8 @@ import { connectDB, GameResultService } from './database/index';
 import { DistributionKey, GameResult } from './database/models/GameResul.model';
 
 const wsPort = 3100;
-const dbPort = 27017;
 const arduinoPort = 3200;
+const dbPort = 27017;
 const arduinoCOMPort = '/dev/ttyACM0';
 
 (async () => {
@@ -41,18 +41,18 @@ const arduinoCOMPort = '/dev/ttyACM0';
         }
     }
 
-    function handleNewMessage(message: string) {
+    function handleNewMessage(message: string, date: number) {
         const messageData = message.split(';');
         switch (messageData[0]) {
             case MessageHeader.LED:
-                return handleNewLed(+messageData[1], +messageData[2]);
+                return handleNewLed(+messageData[1]);
             case MessageHeader.SCORE:
-                return handleNewScore(+messageData[1], +messageData[2]);
+                return handleNewScore(+messageData[1], date);
         }
     }
 
-    function handleNewLed(ledIndex: number, date: number) {
-        broadcastJSON({ type: MessageHeader.LED, curLed: ledIndex, date });
+    function handleNewLed(ledIndex: number) {
+        broadcastJSON({ type: MessageHeader.LED, curLed: ledIndex });
     }
 
     async function handleNewScore(score: number, date: number) {
@@ -69,10 +69,9 @@ const arduinoCOMPort = '/dev/ttyACM0';
         await GameResultService.createGameResult(new GameResult({ score, category, datetime: date }));
         broadcastJSON({
             type: MessageHeader.SCORE,
-            curTime: score,
-            avgTime: averageScore,
-            distribution,
-            date
+            score,
+            avgScore: averageScore,
+            distribution
         });
     }
 
@@ -80,7 +79,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         const ledAction = async function () {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    handleNewMessage(`${MessageHeader.LED};${Math.floor(Math.random() * 3)};${Date.now()}`);
+                    handleNewMessage(`${MessageHeader.LED};${Math.floor(Math.random() * 3)}}`, Date.now());
                     resolve(true);
                 }, 2000);
             });
@@ -88,7 +87,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         const scoreAction = async function () {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    handleNewMessage(`${MessageHeader.SCORE};${300 + Math.round(Math.random() * 500)};${Date.now()}`);
+                    handleNewMessage(`${MessageHeader.SCORE};${300 + Math.round(Math.random() * 500)}`, Date.now());
                     resolve(true);
                 }, 300 + Math.round(Math.random() * 100));
             });

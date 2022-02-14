@@ -8,6 +8,7 @@ services:
       - mongo
     ports:
       - 3100:3100
+      - 3200:3200
     tty: true
     stdin_open: true
     networks:
@@ -20,16 +21,23 @@ services:
       - server
     ports:
       - 3000:3000
+    tty: false
+    stdin_open: false
 
   mongo:
     restart: unless-stopped
     image: mongo:latest
     ports:
       - 27017:27017
-    tty: true
-    stdin_open: true
+    volumes:
+      - mongodb:/data/db
     networks:
       - backend
+    tty: false
+    stdin_open: false
 
 networks:
   backend:
+
+volumes:
+  mongodb:
