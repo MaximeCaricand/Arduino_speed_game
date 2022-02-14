@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws';
 import { ILedMessageData, IScoreData, medianAvgOffset, MessageHeader } from './database/models/MessageData.model';
 import { connectDB, GameResultService } from './database/index';
 import { DistributionKey, GameResult } from './database/models/GameResul.model';
+//import SerialPort = require("serialport");
 
 const wsPort = 3100;
 const arduinoPort = 3200;
@@ -14,10 +15,13 @@ const arduinoCOMPort = '/dev/ttyACM0';
     console.log(await connectDB(dbPort));
 
     // Arduino connection setup
-    // const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
-    // arduinoSerialPort.on('open', function () {
-    //     console.log(`Serial Port ${arduinoCOMPort} is opened.`);
-    // });
+    /*const arduinoSerialPort = new SerialPort(arduinoCOMPort, { baudRate: 9600 });
+    arduinoSerialPort.on('open', function () {
+        console.log(`Serial Port ${arduinoCOMPort} is opened.`);
+    });
+    arduinoSerialPort.on('message', function () {
+        console.log('message recu');
+    });*/
 
     const server = http.createServer();
     // @ts-ignore
@@ -75,7 +79,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         });
     }
 
-    async function debug() {
+/*    async function debug() {
         const ledAction = async function () {
             return new Promise((resolve) => {
                 setTimeout(() => {
@@ -98,7 +102,7 @@ const arduinoCOMPort = '/dev/ttyACM0';
         }
     };
 
-    debug();
+    debug();*/
 })();
 
 
