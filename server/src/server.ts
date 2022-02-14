@@ -7,12 +7,12 @@ import SerialPort = require("serialport");
 
 const Readline = require('@serialport/parser-readline');
 
-const wsPort = 3150;
+const wsPort = 3100;
 const arduinoPort = 3200;
 const dbPort = 27017;
 const arduinoCOMPortUbuntu = '/dev/ttyACM0';
 const arduinoCOMPortMacos = '/dev/cu.usbmodem1101';
-const selectedArdCOMPort = arduinoCOMPortMacos;
+const selectedArdCOMPort = arduinoCOMPortUbuntu;
 var parser;
 
 (async () => {
@@ -77,7 +77,7 @@ var parser;
         distribution[category]++; // increase distribution with the new score
         await GameResultService.createGameResult(new GameResult({ score, category, datetime: date }));
 
-        //sendCategory
+        sendCategoryToArduino(category);
 
         broadcastJSON({
             type: MessageHeader.SCORE,
@@ -85,6 +85,20 @@ var parser;
             avgScore: averageScore,
             distribution
         });
+    }
+
+    function sendCategoryToArduino(category: DistributionKey) {
+        switch (category) {
+            case DistributionKey.RED:
+                arduinoSerialPort.write("r", 'ascii');
+                break;
+            case DistributionKey.YELLOW:
+                arduinoSerialPort.write("y", 'ascii');
+                break;
+            case DistributionKey.GREEN:
+                arduinoSerialPort.write("g", 'ascii');
+                break;
+        }
     }
 
     async function debug() {
