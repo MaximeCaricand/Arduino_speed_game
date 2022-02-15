@@ -8,7 +8,8 @@ export const medianAvgOffset = 100;
 
 export enum MessageHeader {
     LED = 'led',
-    SCORE = 'score'
+    SCORE = 'score',
+    STOP = 'stop',
 }
 
 export type Distribution = { [key in DistributionKey]: number }
@@ -29,3 +30,8 @@ export interface IScoreData extends IMessageData {
     distribution: Distribution;
 }
 
+export interface IStopMessage extends IMessageData {
+    type: MessageHeader.STOP;
+}
+
+export type Message = IScoreData | ILedMessageData | IStopMessage;

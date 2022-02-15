@@ -1,6 +1,6 @@
 import * as http from 'http';
 import { WebSocketServer } from 'ws';
-import { ILedMessageData, IScoreData, medianAvgOffset, MessageHeader } from './database/models/MessageData.model';
+import { medianAvgOffset, Message, MessageHeader } from './database/models/MessageData.model';
 import { connectDB, GameResultService } from './database/index';
 import { DistributionKey, GameResult } from './database/models/GameResul.model';
 import SerialPort = require("serialport");
@@ -9,10 +9,7 @@ const Readline = require('@serialport/parser-readline');
 
 const wsPort = 3100;
 const dbPort = 27017;
-const arduinoCOMPortUbuntu = '/dev/ttyACM0';
-const arduinoCOMPortMacos = '/dev/cu.usbmodem1101';
-const selectedArdCOMPort = arduinoCOMPortUbuntu;
-var parser;
+const selectedArdCOMPort = '/dev/ttyACM0';
 
 (async () => {
     // Mongo setup
@@ -23,7 +20,7 @@ var parser;
     arduinoSerialPort.on('open', function () {
         console.log(`[Serial Port] ${selectedArdCOMPort} is opened.`);
     });
-    parser = arduinoSerialPort.pipe(new Readline({ delimiter: '\r\n' }));
+    const parser = arduinoSerialPort.pipe(new Readline({ delimiter: '\r\n' }));
     parser.on('data', (message: string) => { handleNewMessage(message, Date.now()); });
 
     // Websocket setup
@@ -34,7 +31,7 @@ var parser;
     wss.on('connection', () => console.log('new client'));
 
     // broadcast a json to all connected clients
-    function broadcastJSON(message: IScoreData | ILedMessageData) {
+    function broadcastJSON(message: Message) {
         wss.clients.forEach(client => {
             client.send(JSON.stringify(message));
         });
@@ -45,15 +42,12 @@ var parser;
         const messageData = message.split(';');
         switch (messageData[0]) {
             case MessageHeader.LED:
-                return handleNewLed(+messageData[1]);
+                return broadcastJSON({ type: MessageHeader.LED, curLed: +messageData[1] });
             case MessageHeader.SCORE:
                 return handleNewScore(+messageData[1], date);
+            case MessageHeader.STOP:
+                return broadcastJSON({ type: MessageHeader.STOP });
         }
-    }
-
-    // update frontend with the last led
-    function handleNewLed(ledIndex: number) {
-        broadcastJSON({ type: MessageHeader.LED, curLed: ledIndex });
     }
 
     async function handleNewScore(score: number, date: number) {
@@ -91,10 +85,18 @@ var parser;
 
     // allow to test without the arduino board
     async function debug() {
+        const stopAction = async function () {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    handleNewMessage(`${MessageHeader.STOP}`, Date.now());
+                    resolve(true);
+                }, 2000);
+            });
+        }
         const ledAction = async function () {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    handleNewMessage(`${MessageHeader.LED};${Math.floor(Math.random() * 3)}}`, Date.now());
+                    handleNewMessage(`${MessageHeader.LED};${Math.floor(Math.random() * 3)}`, Date.now());
                     resolve(true);
                 }, 2000);
             });
@@ -107,12 +109,18 @@ var parser;
                 }, 300 + Math.round(Math.random() * 100));
             });
         }
+        let cpt = 0;
         while (true) {
+            if (cpt > 5) {
+                cpt = 0;
+                await stopAction();
+            }
             await ledAction();
             await scoreAction();
+            cpt++
         }
     };
-    //debug();
+    // debug();
 })();
 
 

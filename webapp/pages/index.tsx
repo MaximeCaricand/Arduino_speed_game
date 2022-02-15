@@ -6,10 +6,20 @@ import { ILedMessageData, IScoreData, MessageHeader } from '../utils/model/Messa
 import Highcharts from 'highcharts';
 import highchartsMore from "highcharts/highcharts-more.js"
 import solidGauge from "highcharts/modules/solid-gauge";
+import { Distribution, Message } from '../../server/src/database/models/MessageData.model';
+import { Modal } from 'react-bootstrap';
 
 if (typeof Highcharts === 'object') {
   highchartsMore(Highcharts);
   solidGauge(Highcharts);
+}
+
+type HomeState = {
+  gameStarted: boolean;
+  curLed: number;
+  curTime: number;
+  avgTime: number;
+  distribution: Distribution;
 }
 
 export default class Home extends Component<{}, any> {
@@ -17,6 +27,7 @@ export default class Home extends Component<{}, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      gameStarted: false,
       curLed: -1,
       curTime: 0,
       avgTime: 0,
@@ -28,8 +39,8 @@ export default class Home extends Component<{}, any> {
     }
   }
 
-  updateState(newState: any) {
-    this.setState((state: any) => (Object.assign({}, state, newState)));
+  updateState(newState: Partial<HomeState>) {
+    this.setState((state: HomeState) => (Object.assign({}, state, newState)));
   }
 
   componentDidMount() {
@@ -37,19 +48,24 @@ export default class Home extends Component<{}, any> {
     ws.onopen = () => console.log("ws opened");
     ws.onerror = (e) => console.log(e);
     ws.onmessage = (event) => {
-      const data: IScoreData | ILedMessageData = JSON.parse(event.data);
+      const data: Message = JSON.parse(event.data);
       switch (data.type) {
         case MessageHeader.LED:
-          this.setState({ curLed: data.curLed });
+          this.setState({ curLed: data.curLed, gameStarted: true });
           break;
         case MessageHeader.SCORE:
           this.setState({
             curLed: -1,
             curTime: data.score,
             avgTime: data.avgScore,
-            distribution: data.distribution
+            distribution: data.distribution,
+            gameStarted: true
           });
           break;
+        case MessageHeader.STOP: {
+          this.setState({ gameStarted: false });
+          break;
+        }
       }
     };
   }
@@ -78,6 +94,12 @@ export default class Home extends Component<{}, any> {
             <h6 className="w-100 text-center">© Copyright 2022 - Florian Henry & Maxime Caricand - Projet Arduino IoT</h6>
           </div>
         </footer>
+
+        <Modal show={!this.state.gameStarted} backdrop="static" keyboard={false} centered >
+          <Modal.Body className="text-center">
+            <strong>Awesome speed game</strong> is stopped
+          </Modal.Body>
+        </Modal>
       </>
     )
   }
