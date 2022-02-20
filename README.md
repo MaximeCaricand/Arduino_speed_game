@@ -47,4 +47,61 @@ L'objectif n'est pas d'avoir valider tous les éléments (sauf les requis, c'est
 
 ## Notre projet
 
-_a expliquer plus tard_
+_Pour comprendre les reférences aux LEDs et aux BOUTONS il faut regarder le schéma suivant :_
+<img src = "arduino/schema/SchémaArduinoSpeedGame.png">
+
+<br>
+
+### Le projet choisit
+
+Tout d'abord pour ce projet, nous avons choisit de réaliser une mini jeu de intéractif qui permet de faire travailler sa réactivité à l'aide l'arduino uno.
+
+Ce jeu permet d'accroître l'attention et la réactivite de l'utilisateur. Le site fournis avec le jeu lui permettra de connaitre ses performances et ainsi des les améliorer.
+
+<br>
+
+### Le but du jeu
+
+Lorsque le jeu est lancé, au hasard, une des trois leds vertes au centre s'allume. Pour l'éteindre il suffit d'appuyer sur le bouton qui le correspond : bouton du bas, pour la led du bas, etc. Le but étant de l'éteindre le plus rapidement possible afin d'avoir un temps de réaction le plus bas. Celui-ci sera d'ailleur affiché sur le site web à l'aide d'un accéléromètre et d'un graphique.
+
+Sur ce jeu, nous avons :
+ 1. **4 boutons**
+    - 1 bouton, pour lancer et éteindre le jeu (bouton situé en bas à coté de la LED bleu)
+    - 3 boutons, sur lesquels nous devons appuyer pour éteindre les LEDs vertes le plus vite possible.
+
+ 2. **7 leds**
+    - 1 led bleu, pour savoir si le jeu est en cours
+    - 3 leds vertes, qui s'allument au hasard et qui s'éteignent lorsque l'on appuye sur le bouton
+    - 3 leds verte, orange et rouge, qui permettent de nous dire si le temps de réaction est respectivement bon, moyen et long. Ce temps est calculé avec le temps de réaction moyen de l'utilisateur.
+
+<br>
+
+### L'interface utilisateur (site web)
+
+L'interface est séparée en trois partie :
+ 1. En haut : le jeu en temps réel (la led qui s'allume sur le site est celle allumé sur l'arduino)
+ 2. Au milieu à gauche : un accéléromètre montrant le temps de réaction du joueur
+ 3. Au milieu à droite : un graphique permettant de voir le nombre de fois ou l'utilisateur a eu un temps de réaction rapide, moyen ou lent, selon la moyenne enregistrée.
+
+Voici-ci l'interface :
+
+<img src = "webapp/schema/InterfaceJeuEnCours.png">
+
+<img src = "webapp/schema/InterfaceJeuEnPause.png">
+
+<br>
+
+## Les technologies et techniques utilisées
+
+ 1. **Arduino** :
+    - Nous avons réaliser le jeu avec l'ensemble des équipements fournis par l'université : Arduino UNO, fils, leds, resistances, breadboard
+    - L'Arduino UNO comptant uniquement 2 ports permettant les interrupts, nous avons due utiliser des diodes pour pouvoir récuperer les actions des 3 boutons certrales.
+    - Pour envoyer les informations au serveur et en recevoir, nous avons utilisés le SerialPort.
+
+ 2. **Serveur/Client** :
+    - Nodejs
+    - TypeScript
+    - Reactjs
+
+ 3. **Docker** :
+    - 
