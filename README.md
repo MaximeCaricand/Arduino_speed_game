@@ -54,9 +54,9 @@ _Pour comprendre les reférences aux LEDs et aux BOUTONS il faut regarder le sch
 
 ### Le projet choisit
 
-Tout d'abord pour ce projet, nous avons choisit de réaliser une mini jeu de intéractif qui permet de faire travailler sa réactivité à l'aide l'arduino uno.
+Tout d'abord pour ce projet, nous avons choisi de réaliser une mini jeu de intéractif qui permet de faire travailler sa réactivité à l'aide l'arduino uno.
 
-Ce jeu permet d'accroître l'attention et la réactivite de l'utilisateur. Le site fournis avec le jeu lui permettra de connaitre ses performances et ainsi des les améliorer.
+Ce jeu permet d'accroître l'attention et la réactivite de l'utilisateur. Le site fourni avec le jeu lui permettra de connaitre ses performances et ainsi des les améliorer.
 
 <br>
 
@@ -83,9 +83,13 @@ L'interface est séparée en trois partie :
  2. Au milieu à gauche : un accéléromètre montrant le temps de réaction du joueur
  3. Au milieu à droite : un graphique permettant de voir le nombre de fois ou l'utilisateur a eu un temps de réaction rapide, moyen ou lent, selon la moyenne enregistrée.
 
-Voici-ci l'interface :
+**Voici-ci l'interface :**
+
+Jeu en cours
 
 <img src = "webapp/schema/InterfaceJeuEnCours.png">
+
+Jeu en pause
 
 <img src = "webapp/schema/InterfaceJeuEnPause.png">
 
@@ -98,10 +102,38 @@ Voici-ci l'interface :
     - L'Arduino UNO comptant uniquement 2 ports permettant les interrupts, nous avons due utiliser des diodes pour pouvoir récuperer les actions des 3 boutons certrales.
     - Pour envoyer les informations au serveur et en recevoir, nous avons utilisés le SerialPort.
 
+<br>
+
  2. **Serveur/Client** :
     - Nodejs
     - TypeScript
     - Reactjs
+    - Highcharts
+    - Websocket
+
+<br>
 
  3. **Docker** :
-    - 
+    - Mongodb
+    - Client
+    - Serveur
+
+<br>
+
+## Comment lancer le projet
+
+Il faut au préalable avoir git, docker et arduino IDE.
+
+Pour lancer le projet :
+
+&nbsp;&nbsp;1.1. Clone le projet : https://github.com/MaximeCaricand/Arduino_speed_game.git <br>
+
+&nbsp;&nbsp;2.1. Ouvrir Arduino IDE et sélectionner le code dans "**Arduino/code/**"<br>
+&nbsp;&nbsp;2.2. Sélectionné le port "**/dev/ttyACM0**"<br>
+&nbsp;&nbsp;2.3. Lancer le code pour l'ajouter à l'Arduino
+
+&nbsp;&nbsp;3.1. Ouvrir le répertoire cloné<br>
+&nbsp;&nbsp;3.2. Accéder au terminal et exécuter la commande "**docker-compose up**"
+
+&nbsp;&nbsp;4.1. Rendez-vous sur le "**localhost:3000/**"<br>
+&nbsp;&nbsp;4.2. TOUT EST PRET !
