@@ -54,15 +54,15 @@ _Pour comprendre les reférences aux LEDs et aux BOUTONS il faut regarder le sch
 
 ### Le projet choisit
 
-Tout d'abord pour ce projet, nous avons choisi de réaliser une mini jeu de intéractif qui permet de faire travailler sa réactivité à l'aide l'arduino uno.
+Tout d'abord pour ce projet, nous avons choisi de réaliser un mini jeu interactif qui permet de faire travailler sa réactivité à l'aide l'arduino uno.
 
-Ce jeu permet d'accroître l'attention et la réactivite de l'utilisateur. Le site fourni avec le jeu lui permettra de connaitre ses performances et ainsi des les améliorer.
+Ce jeu permet d'accroître l'attention et la réactivité de l'utilisateur. Le site fourni avec le jeu lui permettra de connaître ses performances et ainsi de les améliorer.
 
 <br>
 
 ### Le but du jeu
 
-Lorsque le jeu est lancé, au hasard, une des trois leds vertes au centre s'allume. Pour l'éteindre il suffit d'appuyer sur le bouton qui le correspond : bouton du bas, pour la led du bas, etc. Le but étant de l'éteindre le plus rapidement possible afin d'avoir un temps de réaction le plus bas. Celui-ci sera d'ailleur affiché sur le site web à l'aide d'un accéléromètre et d'un graphique.
+Lorsque le jeu est lancé, au hasard, une des trois leds vertes au centre s'allume. Pour l'éteindre, il suffit d'appuyer sur le bouton qui lui correspond : bouton du bas, pour la led du bas, etc. Le but étant de l'éteindre le plus rapidement possible afin d'avoir un temps de réaction le plus bas. Celui-ci sera d'ailleurs affiché sur le site web à l'aide d'un accéléromètre et d'un graphique.
 
 Sur ce jeu, nous avons :
  1. **4 boutons**
@@ -98,9 +98,9 @@ Jeu en pause
 ## Les technologies et techniques utilisées
 
  1. **Arduino** :
-    - Nous avons réaliser le jeu avec l'ensemble des équipements fournis par l'université : Arduino UNO, fils, leds, resistances, breadboard
-    - L'Arduino UNO comptant uniquement 2 ports permettant les interrupts, nous avons due utiliser des diodes pour pouvoir récuperer les actions des 3 boutons certrales.
-    - Pour envoyer les informations au serveur et en recevoir, nous avons utilisés le SerialPort.
+    - Nous avons réalisé le jeu avec l'ensemble des équipements fournis par l'université : Arduino UNO, fils, leds, resistances, breadboard
+    - L'Arduino UNO comptant uniquement 2 ports permettant les interrupts, nous avons due utiliser des diodes pour pouvoir récupérer les actions des 3 boutons centrales.
+    - Pour envoyer les informations au serveur et en recevoir, nous avons utilisé le SerialPort.
 
 <br>
 
@@ -129,11 +129,11 @@ Pour lancer le projet :
 &nbsp;&nbsp;1.1. Clone le projet : https://github.com/MaximeCaricand/Arduino_speed_game.git <br>
 
 &nbsp;&nbsp;2.1. Ouvrir Arduino IDE et sélectionner le code dans "**Arduino/code/**"<br>
-&nbsp;&nbsp;2.2. Sélectionné le port "**/dev/ttyACM0**"<br>
+&nbsp;&nbsp;2.2. Sélectionner le port "**/dev/ttyACM0**"<br>
 &nbsp;&nbsp;2.3. Lancer le code pour l'ajouter à l'Arduino
 
 &nbsp;&nbsp;3.1. Ouvrir le répertoire cloné<br>
 &nbsp;&nbsp;3.2. Accéder au terminal et exécuter la commande "**docker-compose up**"
 
-&nbsp;&nbsp;4.1. Rendez-vous sur le "**localhost:3000/**"<br>
+&nbsp;&nbsp;4.1. Rendez-vous sur l'url "**localhost:3000/**"<br>
 &nbsp;&nbsp;4.2. TOUT EST PRET !
